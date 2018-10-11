@@ -123,6 +123,25 @@ class DRV2605:
         self.mode = MODE_INTTRIG
         self.library = LIBRARY_TS2200A
 
+    def __setitem__(self, slot, effect_id):
+        """Write an effect ID to a slot."""
+        if not 0 <= slot <= 6:
+            raise IndexError('Slot must be a value within 0-6!')
+        if not 0 <= effect_id <= 123:
+            raise ValueError('Effect ID must be a value within 0-123!')
+        self._write_u8(_DRV2605_REG_WAVESEQ1 + slot, effect_id)
+
+    def __getitem__(self, slot):
+        """Read an effect ID from a slot."""
+        if not 0 <= slot <= 6:
+            raise IndexError('Slot must be a value within 0-6!')
+        return self._read_u8(_DRV2605_REG_WAVESEQ1 + slot)
+
+    def __iter__(self):
+        """Return an iterator over the waveform sequence slots."""
+        for slot in range(0, 7):
+            yield self[slot]
+
     def _read_u8(self, address):
         # Read an 8-bit unsigned value from the specified 8-bit address.
         with self._device as i2c:
